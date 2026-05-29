@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI效率工具小店 · 数字商品</title>
+<style>
+:root{--bg:#0a0a1a;--card-bg:linear-gradient(145deg,#13133a,#1a1a3e);--accent:#7c3aed;--accent2:#06b6d4;--text:#e0e0f0;--muted:#999;--border:rgba(124,58,237,.2);--border-hover:rgba(124,58,237,.5);--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* particles bg */
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;width:3px;height:3px;background:rgba(124,58,237,.3);border-radius:50%;animation:float linear infinite}
+@keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(124,58,237,.3);border-radius:3px}
+
+/* header */
+.hero{position:relative;z-index:1;padding:60px 20px 40px;text-align:center;background:linear-gradient(180deg,rgba(124,58,237,.08) 0%,transparent 100%)}
+.hero .badge{display:inline-block;padding:4px 16px;border-radius:20px;font-size:12px;background:rgba(6,182,212,.12);color:var(--accent2);margin-bottom:16px;border:1px solid rgba(6,182,212,.2)}
+.hero h1{font-size:clamp(28px,5vw,42px);background:linear-gradient(135deg,#7c3aed,#06b6d4,#7c3aed);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite;margin-bottom:12px}
+@keyframes gradientShift{0%,100%{background-position:0% center}50%{background-position:100% center}}
+.hero p{color:var(--muted);font-size:clamp(14px,2vw,16px);max-width:500px;margin:0 auto;line-height:1.7}
+.hero .stats{display:flex;justify-content:center;gap:30px;margin-top:24px;flex-wrap:wrap}
+.hero .stat{text-align:center}
+.hero .stat-num{font-size:24px;font-weight:700;color:var(--accent2)}
+.hero .stat-label{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* products grid */
+.products{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+
+/* product card */
+.card{position:relative;background:var(--card-bg);border-radius:var(--radius);padding:28px;border:1px solid var(--border);transition:all .3s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .3s}
+.card:hover{transform:translateY(-6px);border-color:var(--border-hover);box-shadow:0 12px 40px rgba(124,58,237,.15)}
+.card:hover::before{opacity:1}
+.card .badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:11px;font-weight:600;margin-bottom:10px}
+.card .badge.hot{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+.card .badge.popular{background:rgba(251,146,60,.12);color:#fb923c;border:1px solid rgba(251,146,60,.2)}
+.card .badge.new{background:rgba(6,182,212,.12);color:var(--accent2);border:1px solid rgba(6,182,212,.2)}
+.card .icon{font-size:36px;margin-bottom:8px}
+.card h3{font-size:20px;margin-bottom:4px}
+.card .price{font-size:34px;font-weight:700;color:var(--accent);margin:10px 0 4px;display:flex;align-items:baseline;gap:6px}
+.card .price small{font-size:13px;color:var(--muted);font-weight:400}
+.card .original-price{font-size:13px;color:#666;text-decoration:line-through;margin-left:6px;font-weight:400}
+.card .desc{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:14px}
+.card ul{list-style:none;font-size:13px}
+.card ul li{padding:5px 0;color:#bbb;display:flex;align-items:flex-start;gap:8px}
+.card ul li::before{content:"✦";color:var(--accent);flex-shrink:0}
+.card .btn-buy{display:block;width:100%;padding:12px;margin-top:18px;background:linear-gradient(135deg,var(--accent),#6d28d9);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all .3s;text-align:center}
+.card .btn-buy:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.35)}
+
+/* bundle section */
+.bundle{position:relative;z-index:1;max-width:1100px;margin:30px auto;padding:20px;text-align:center}
+.bundle-box{background:linear-gradient(145deg,#1a0a3e,#13133a);border-radius:var(--radius);padding:32px;border:2px solid rgba(124,58,237,.3);position:relative;overflow:hidden}
+.bundle-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(124,58,237,.05),transparent,rgba(6,182,212,.05),transparent);animation:spin 10s linear infinite}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.bundle-content{position:relative;z-index:1}
+.bundle-box h3{font-size:22px;color:var(--accent2);margin-bottom:8px}
+.bundle-box .price-bundle{font-size:28px;font-weight:700;color:var(--accent);margin:12px 0}
+.bundle-box .price-bundle small{font-size:14px;color:var(--muted);font-weight:400}
+.bundle-box .save{display:inline-block;padding:4px 14px;border-radius:20px;background:rgba(239,68,68,.12);color:#ef4444;font-size:13px;font-weight:600;margin-bottom:12px}
+.bundle-box .btn-bundle{display:inline-block;padding:14px 40px;background:linear-gradient(135deg,var(--accent2),#0891b2);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;margin-top:12px;text-decoration:none}
+.bundle-box .btn-bundle:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(6,182,212,.35)}
+
+/* payment section */
+.payment{position:relative;z-index:1;max-width:700px;margin:30px auto;padding:20px}
+.payment-box{background:var(--card-bg);border-radius:var(--radius);padding:32px;border:1px solid rgba(6,182,212,.2)}
+.payment-box h3{font-size:20px;text-align:center;color:var(--accent2);margin-bottom:20px}
+.payment-box h3 span{display:inline-block;background:rgba(6,182,212,.1);padding:2px 10px;border-radius:6px;font-size:12px;color:var(--muted);font-weight:400;vertical-align:middle;margin-left:6px}
+.pay-methods{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.pay-method{flex:1;min-width:140px;padding:16px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);text-align:center;cursor:pointer;transition:all .3s}
+.pay-method.active,.pay-method:hover{border-color:var(--accent);background:rgba(124,58,237,.08)}
+.pay-method .pay-icon{font-size:28px;margin-bottom:6px}
+.pay-method .pay-name{font-size:13px;font-weight:600}
+
+/* pay tabs */
+.pay-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.pay-tab{padding:8px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:1px solid var(--border);transition:all .3s;background:transparent;color:var(--muted)}
+.pay-tab.active{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(6,182,212,.1));border-color:var(--accent);color:var(--text)}
+.pay-tab:hover{border-color:var(--accent)}
+
+.pay-account{text-align:center;padding:20px;background:rgba(124,58,237,.06);border-radius:12px;border:1px dashed rgba(124,58,237,.3);margin-bottom:16px}
+.pay-account .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.pay-account .account{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:1px;word-break:break-all}
+.copy-btn{display:inline-block;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .3s;margin-top:8px}
+.copy-btn:hover{background:#6d28d9;transform:translateY(-1px)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:20px}
+.step{text-align:center;padding:14px 10px;background:rgba(255,255,255,.04);border-radius:10px}
+.step .step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px}
+.step .step-text{font-size:12px;color:#bbb;line-height:1.5}
+.discount-note{text-align:center;margin-top:16px;padding:12px;background:rgba(251,146,60,.08);border-radius:10px;border:1px solid rgba(251,146,60,.2);font-size:13px;color:#fb923c;line-height:1.6}
+
+/* reviews */
+.reviews{position:relative;z-index:1;max-width:900px;margin:30px auto;padding:20px}
+.reviews h3{text-align:center;font-size:20px;margin-bottom:20px;color:var(--accent2)}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.review-card{padding:18px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.05)}
+.review-card .stars{color:#f59e0b;font-size:14px;margin-bottom:6px}
+.review-card .text{font-size:13px;color:#bbb;line-height:1.6;font-style:italic}
+.review-card .author{font-size:12px;color:var(--muted);margin-top:8px}
+
+/* faq */
+.faq{position:relative;z-index:1;max-width:700px;margin:30px auto;padding:20px}
+.faq h3{text-align:center;font-size:20px;margin-bottom:20px;color:var(--accent2)}
+.faq-item{padding:14px 18px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:10px;cursor:pointer;transition:background .2s}
+.faq-item:hover{background:rgba(255,255,255,.06)}
+.faq-q{font-size:14px;font-weight:600;color:#ddd;display:flex;justify-content:space-between;align-items:center}
+.faq-q .arrow{transition:transform .3s;font-size:12px}
+.faq-item.open .faq-q .arrow{transform:rotate(180deg)}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.6;margin-top:10px;display:none}
+.faq-item.open .faq-a{display:block}
+
+/* footer */
+.footer{position:relative;z-index:1;text-align:center;padding:40px 20px;color:#444;font-size:12px;line-height:1.8}
+.footer a{color:var(--accent2);text-decoration:none}
+
+/* mobile responsive */
+@media(max-width:640px){
+.hero{padding:40px 16px 24px}
+.hero .stats{gap:16px}
+.hero .stat-num{font-size:20px}
+.products{gap:16px;padding:12px}
+.card{padding:20px}
+.payment{padding:12px}
+.payment-box{padding:20px}
+.pay-methods{flex-direction:column}
+.pay-method{min-width:unset}
+.steps{grid-template-columns:1fr}
+.bundle-box{padding:24px 16px}
+.reviews{padding:12px}
+.faq{padding:12px}
+.faq-item{padding:12px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- particles -->
+<div class="particles" id="particles"></div>
+
+<!-- hero -->
+<section class="hero">
+  <div class="badge">🌟 数字商品 · 即买即用</div>
+  <h1>⚡ AI效率工具小店</h1>
+  <p>精选AI效率工具 · 小红书运营秘籍 · AI绘画提示词宝典<br>一次购买，永久有效，持续更新</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">2,000+</div><div class="stat-label">已售出</div></div>
+    <div class="stat"><div class="stat-num">⭐⭐⭐⭐⭐</div><div class="stat-label">好评率 98%</div></div>
+    <div class="stat"><div class="stat-num">24h</div><div class="stat-label">内发货</div></div>
+  </div>
+</section>
+
+<!-- products -->
+<section class="products">
+
+  <!-- Product 1: AI效率工具包 -->
+  <div class="card">
+    <span class="badge hot">🔥 畅销</span>
+    <div class="icon">🤖</div>
+    <h3>AI效率工具包</h3>
+    <div class="price">¥9.9 <small>永久有效</small><span class="original-price">¥39.9</span></div>
+    <p class="desc">100个ChatGPT/Claude精选提示词 + 10个自动化工作流模板，覆盖办公、创作、编程、学习全场景</p>
+    <ul>
+      <li>办公效率类 — 周报/邮件/会议纪要</li>
+      <li>内容创作类 — 小红书笔记/脚本/标题</li>
+      <li>数据分析类 — Excel公式/SQL查询</li>
+      <li>编程开发类 — 代码生成/Debug</li>
+      <li>学习研究类 — 论文精读/知识脑图</li>
+      <li>⚡ 附赠：自动化工作流模板10个</li>
+    </ul>
+    <button class="btn-buy" onclick="selectProduct('AI效率工具包','¥9.9',this)">立即购买 ¥9.9</button>
+  </div>
+
+  <!-- Product 2: 小红书运营宝典 -->
+  <div class="card">
+    <span class="badge popular">📈 爆款</span>
+    <div class="icon">📱</div>
+    <h3>AI小红书运营宝典</h3>
+    <div class="price">¥19.9 <small>永久有效</small></div>
+    <p class="desc">50个爆款标题模板 + 30天内容日历 + AI辅助运营全流程，新手快速上手，告别断更</p>
+    <ul>
+      <li>50个标题模板（5大类×10个）</li>
+      <li>30天完整内容日历框架</li>
+      <li>AI辅助选题/写作/复盘工作流</li>
+      <li>可直接复用的提示词模板</li>
+      <li>适合0基础新手快速上手</li>
+      <li>📊 附赠数据复盘模板</li>
+    </ul>
+    <button class="btn-buy" onclick="selectProduct('小红书运营宝典','¥19.9',this)">立即购买 ¥19.9</button>
+  </div>
+
+  <!-- Product 3: AI绘画提示词宝典 -->
+  <div class="card">
+    <span class="badge new">🎨 新品</span>
+    <div class="icon">🎨</div>
+    <h3>AI绘画提示词宝典</h3>
+    <div class="price">¥9.9 <small>永久有效</small><span class="original-price">¥29.9</span></div>
+    <p class="desc">200+精选AI绘画提示词 · 中英双语 · 6大风格 · Midjourney/Stable Diffusion/DALL-E通用</p>
+    <ul>
+      <li>赛博朋克风格（30+提示词）</li>
+      <li>水墨国风风格（30+提示词）</li>
+      <li>3D渲染风格（30+提示词）</li>
+      <li>插画风格（30+提示词）</li>
+      <li>写实摄影风格（30+提示词）</li>
+      <li>概念设计风格（30+提示词）</li>
+    </ul>
+    <button class="btn-buy" onclick="selectProduct('AI绘画提示词宝典','¥9.9',this)">立即购买 ¥9.9</button>
+  <!-- Product 4: AI自媒体赚钱指南 -->
+  <div class="card">
+    <span class="badge hot">💰 新手上分</span>
+    <div class="icon">💡</div>
+    <h3>AI自媒体赚钱指南</h3>
+    <div class="price">¥19.9 <small>永久有效</small></div>
+    <p class="desc">10大AI副业方向详解 + 30天从0到赚钱计划 + 100+条AI提示词模板，2026年用AI轻松变现</p>
+    <ul>
+      <li>10大AI副业方向全覆盖</li>
+      <li>30天从0到赚钱完整计划</li>
+      <li>100+条AI提示词直接复制用</li>
+      <li>小红书/抖音/闲鱼操作指南</li>
+      <li>清晰变现公式各阶段对照</li>
+      <li>💰 永久更新 一次购买</li>
+    </ul>
+    <button class="btn-buy" onclick="selectProduct('AI自媒体赚钱指南','¥19.9',this)">立即购买 ¥19.9</button>
+  </div>
+</section>
+    <section class="bundle">
+      <div class="bundle-box">
+        <div class="bundle-content">
+          <div class="save">🎉 省 ¥11.7</div>
+          <h3>📦 全套打包（四件套）</h3>
+          <p style="color:#aaa;font-size:13px;margin-bottom:4px">AI效率工具包 + 小红书运营宝典 + AI绘画提示词宝典 + AI自媒体赚钱指南</p>
+          <div class="price-bundle">¥49.9 <small>原价 ¥59.6</small></div>
+          <p style="font-size:12px;color:#666">四件打包享8.3折优惠，全套拿走最划算！</p>
+      <button class="btn-bundle" onclick="selectProduct('全套打包(四件)','¥49.9',this)">🛒 立即抢购 ¥49.9</button>
+    </div>
+  </div>
+</section>
+
+<!-- payment -->
+<section class="payment" id="payment">
+  <div class="payment-box">
+    <h3>💳 购买方式</h3>
+
+    <div class="pay-tabs">
+      <div class="pay-tab active" onclick="switchPay(0)">🇨🇳 支付宝</div>
+      <div class="pay-tab" onclick="switchPay(1)">🌍 PayPal</div>
+    </div>
+
+    <div id="payMethod0" class="pay-method-content">
+      <div class="pay-methods">
+        <div class="pay-method active">
+          <div class="pay-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" fill="#7c3aed"/></svg></div>
+          <div class="pay-name">支付宝转账</div>
+        </div>
+      </div>
+      <div class="pay-account">
+        <div class="label">📌 收款账户</div>
+        <div class="account">auwohu@163.com</div>
+        <button class="copy-btn" onclick="copyAccount()">📋 复制收款账号</button>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">打开支付宝<br>转账至上方账户</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">输入对应商品金额<br>备注商品名称</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">截图私信公众号<br>或发邮件通知</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">24小时内<br>邮箱收到商品</div>
+        </div>
+      </div>
+      <div class="price-list" style="margin-top:12px;font-size:13px;color:var(--muted);text-align:center">
+        <div>AI效率工具包 <strong>¥9.9</strong> &nbsp;|&nbsp; 小红书宝典 <strong>¥19.9</strong></div>
+        <div>AI绘画提示词 <strong>¥9.9</strong> &nbsp;|&nbsp; 赚钱指南 <strong>¥19.9</strong> &nbsp;|&nbsp; 文案模板 <strong>¥9.9</strong></div>
+        <div>🎁 四件打包 <strong>¥39.9</strong>（省¥15.8）</div>
+      </div>
+    </div>
+
+    <div id="payMethod1" class="pay-method-content" style="display:none">
+      <div class="pay-methods">
+        <div class="pay-method active" style="border-color:rgba(0,156,222,.5)">
+          <div class="pay-icon">💳</div>
+          <div class="pay-name">PayPal</div>
+        </div>
+      </div>
+      <div class="pay-account">
+        <div class="label">📌 PayPal Account</div>
+        <div class="account">auwohu@163.com</div>
+        <button class="copy-btn" onclick="copyPaypal()">📋 Copy Email</button>
+      </div>
+      <div style="margin:16px auto;max-width:320px">
+        <a href="https://www.paypal.com/paypalme/auwohu" target="_blank" class="btn-buy" style="display:block;text-align:center;padding:14px;background:linear-gradient(135deg,#0070ba,#1546a0);color:#fff;border-radius:10px;font-weight:600;text-decoration:none">
+          💳 Pay with PayPal.Me
+        </a>
+      </div>
+      <div class="price-list" style="margin-top:12px;font-size:13px;color:var(--muted);text-align:center">
+        <div>AI Toolkit <strong>$1.99</strong> &nbsp;|&nbsp; XHS Guide <strong>$3.99</strong></div>
+        <div>AI Prompts <strong>$1.99</strong> &nbsp;|&nbsp; Monetization <strong>$3.99</strong> &nbsp;|&nbsp; Templates <strong>$1.99</strong></div>
+        <div>🎁 Bundle All 5 <strong>$7.99</strong></div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Send payment to<br>auwohu@163.com via PayPal</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Email us with<br>product name + your email</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">We send the digital<br>product within 24h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自动发货表单 -->
+    <div id="autoDelivery" style="margin-top:20px;padding:20px;background:rgba(6,182,212,.06);border-radius:12px;border:1px solid rgba(6,182,212,.2)">
+      <h4 style="text-align:center;color:var(--accent2);margin-bottom:14px;font-size:15px">📬 付款后填写 · 自动发货</h4>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:400px;margin:0 auto">
+        <input type="email" id="customerEmail" placeholder="你的邮箱（如 example@qq.com）" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;font-size:14px">
+        <input type="text" id="customerName" placeholder="你的称呼（选填）" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;font-size:14px">
+        <button onclick="submitDelivery()" id="deliverBtn" style="padding:14px;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all .3s">🚀 我已付款，立即发货</button>
+        <div id="deliveryStatus" style="text-align:center;font-size:13px;min-height:20px"></div>
+      </div>
+    </div>
+
+    <div class="discount-note">
+      🎁 购买任意2件享9折 · 购买3件享8折（转账相应金额并备注即可）
+    </div>
+  </div>
+</section>
+
+<!-- reviews -->
+<section class="reviews">
+  <h3>💬 用户好评</h3>
+  <div class="review-grid">
+    <div class="review-card">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <div class="text">"太值了！以前写周报要半小时，现在2分钟搞定，提示词直接复制粘贴就能用。"</div>
+      <div class="author">— @职场小透明</div>
+    </div>
+    <div class="review-card">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <div class="text">"那个小红书文案提示词真的绝了，套用之后每篇都爆，涨粉3000+了！"</div>
+      <div class="author">— @自由写手Lisa</div>
+    </div>
+    <div class="review-card">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <div class="text">"作为程序员，debug提示词帮我省了太多时间，强烈推荐给所有同行！"</div>
+      <div class="author">— @CodeMonkey小王</div>
+    </div>
+  </div>
+</section>
+
+<!-- faq -->
+<section class="faq">
+  <h3>❓ 常见问题</h3>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">购买后多久能收到？ <span class="arrow">▼</span></div>
+    <div class="faq-a">付款后24小时内发送，通常2小时内就能收到。打包购买优先处理！</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">文件是什么格式？ <span class="arrow">▼</span></div>
+    <div class="faq-a">PDF/Markdown格式，手机和电脑都能打开阅读，所有提示词可直接复制使用。</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">提示词是中文还是英文？ <span class="arrow">▼</span></div>
+    <div class="faq-a">AI效率工具包全部为中文优化版本；AI绘画提示词宝典为中英双语。所有内容兼容ChatGPT、Claude、Kimi、文心一言等主流AI工具。</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">不满意可以退款吗？ <span class="arrow">▼</span></div>
+    <div class="faq-a">虚拟产品一经发送不支持退款，但我们承诺内容干货满满、物超所值！如有任何问题请随时联系我们。</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">后续更新怎么获取？ <span class="arrow">▼</span></div>
+    <div class="faq-a">一次购买，永久免费获取后续更新版本。我们会不断新增提示词和内容，购买后记得联系我们获取最新版！</div>
+  </div>
+</section>
+
+<!-- footer -->
+<footer class="footer">
+  <p>© AI效率工具小店 · 数字商品一经售出概不退换</p>
+  <p>如有问题请通过小红书私信或邮箱 <a href="mailto:auwohu@163.com">auwohu@163.com</a> 联系我们</p>
+  <p style="margin-top:8px;color:#333">Built with ❤️ · 2026</p>
+</footer>
+
+<script>
+// particles
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.animationDuration=(8+Math.random()*12)+'s';
+    p.style.animationDelay=Math.random()*15+'s';
+    p.style.width=p.style.height=(2+Math.random()*3)+'px';
+    c.appendChild(p);
+  }
+})();
+
+// select product
+function selectProduct(name,price,btn){
+  document.getElementById('selectedName').textContent=name+' ('+price+')';
+  document.getElementById('payment').scrollIntoView({behavior:'smooth',block:'center'});
+  // flash effect on btn
+  if(btn){btn.style.background='linear-gradient(135deg,#059669,#10b981)';setTimeout(()=>{btn.style.background=''},500)}
+}
+
+// copy account
+function copyAccount(){
+  const text='auwohu@163.com';
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    btn.textContent='✅ 已复制！';
+    setTimeout(()=>{btn.textContent='📋 复制收款账号'},2000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn=document.getElementById('copyBtn');
+    btn.textContent='✅ 已复制！';
+    setTimeout(()=>{btn.textContent='📋 复制收款账号'},2000);
+  });
+}
+
+// switch payment method
+function switchPay(idx){
+  document.querySelectorAll('.pay-tab').forEach((t,i)=>{t.classList.toggle('active',i===idx)});
+  document.getElementById('payMethod0').style.display=idx===0?'':'none';
+  document.getElementById('payMethod1').style.display=idx===1?'':'none';
+}
+
+// copy paypal
+function copyPaypal(){
+  navigator.clipboard.writeText('auwohu@163.com').then(()=>{
+    const btn=document.querySelector('[onclick="copyPaypal()"]');
+    if(btn){btn.textContent='✅ Copied!'}
+    setTimeout(()=>{if(btn){btn.textContent='📋 Copy Email'}},2000);
+  });
+}
+
+// faq toggle
+function toggleFaq(el){
+  el.classList.toggle('open');
+}
+
+// auto-delivery
+function submitDelivery(){
+  const email=document.getElementById('customerEmail').value.trim();
+  const name=document.getElementById('customerName').value.trim();
+  const product=document.getElementById('selectedName').textContent;
+  const btn=document.getElementById('deliverBtn');
+  const status=document.getElementById('deliveryStatus');
+  
+  if(!email){status.innerHTML='⚠️ 请填写邮箱';status.style.color='#ef4444';return}
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){status.innerHTML='⚠️ 邮箱格式不正确';status.style.color='#ef4444';return}
+  
+  // 映射商品名到产品ID
+  const productMap={
+    'AI效率工具包': 'ai-toolkit',
+    '小红书运营宝典': 'xhs-playbook',
+    'AI绘画提示词宝典': 'painting-prompts',
+    'AI自媒体赚钱指南': 'monetization-guide',
+    '全套打包(四件)': 'bundle-4'
+  };
+  
+  let pid='';
+  for(const [key,val] of Object.entries(productMap)){
+    if(product.includes(key)){pid=val;break}
+  }
+  if(!pid){status.innerHTML='⚠️ 请先选择商品';status.style.color='#ef4444';return}
+  
+  btn.disabled=true;
+  btn.textContent='⏳ 发送中…';
+  status.innerHTML='';
+  
+  const url='http://localhost:8898/deliver?email='+encodeURIComponent(email)+'&product='+pid+'&name='+encodeURIComponent(name);
+  
+  fetch(url)
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.ok){
+        status.innerHTML='✅ '+data.msg;
+        status.style.color='#10b981';
+        btn.textContent='✅ 已发货';
+      }else{
+        status.innerHTML='❌ '+data.msg;
+        status.style.color='#ef4444';
+        btn.disabled=false;
+        btn.textContent='🚀 重新发送';
+      }
+    })
+    .catch(err=>{
+      status.innerHTML='❌ 发货服务暂不可用，请稍后再试或联系客服';
+      status.style.color='#ef4444';
+      btn.disabled=false;
+      btn.textContent='🚀 重新发送';
+    });
+}
+
+// auto-select first product
+setTimeout(()=>{
+  document.getElementById('selectedName').textContent='AI效率工具包 (¥9.9)';
+},100);
+</script>
+
+</body>
+</html>
